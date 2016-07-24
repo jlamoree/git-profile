@@ -1,0 +1,91 @@
+# Configuration Options
+GIT_PROFILES_PATH="$HOME/Dropbox/GitProfiles"    # Where profiles are kept. One might point this to "$HOME/Dropbox/GitProfiles" perhaps.
+GIT_PROFILE_REMINDER=yes                  # Show the current profile as a reminder. This can be disabled if you like.
+GIT_PROFILE_CONFIG_FILE="gitconfig"       # The filename of the Git configuration file within the profile path. Seems reasonable.
+GIT_CONFIG_FILE="$HOME/.gitconfig"        # Git's default. Probably don't change this.
+
+git() {
+  if [ "_$1" == "_profile" ]; then
+    shift
+    git-profile-main "$@"
+    return $?
+  else
+    # Show the current profile as a reminder, then run git as usual
+    if [ "$GIT_PROFILE_REMINDER" == "yes" ]; then
+      git-profile-main current
+    fi
+    command git "$@"
+  fi
+}
+
+git-profile-main() {
+  if [ "_$1" == "_" -o "$1" == "help" ]; then
+    git-profile-help
+  elif [ "$1" == "current" ]; then
+    # Show the current Git profile in use
+    git-profile-current
+  elif [ "$1" == "create" ]; then
+    # Create a new profile path
+    shift
+    git-profile-create "$@"
+  elif [ "$1" == "use" ]; then
+    # Activate the specified profile
+    shift
+    git-profile-use "$@"
+  fi
+  return $?
+}
+
+git-profile-current() {
+  if [ -r "$GIT_CONFIG_FILE" ]; then
+    echo -n "Current Git profile: "
+    stat -f '%N -> %Y' "$GIT_CONFIG_FILE"
+  else
+    echo "Warning: No file exists at $GIT_CONFIG_FILE"
+  fi
+}
+
+git-profile-create() {
+  GIT_PROFILE_NAME="$1"
+
+  # First make sure it doesn't already exist
+  if [ -d "$GIT_PROFILES_PATH/$GIT_PROFILE_NAME" ]; then
+    echo "A profile at $GIT_PROFILES_PATH/$GIT_PROFILE_NAME already exists. Carry on."
+  else
+    mkdir -p -m 0770 "$GIT_PROFILES_PATH/$GIT_PROFILE_NAME"
+    echo -e "# Git configuration file.\n# See https://git-scm.com/docs/git-config#EXAMPLES\n" > "$GIT_PROFILES_PATH/$GIT_PROFILE_NAME/$GIT_PROFILE_CONFIG_FILE"
+    chmod 660 "$GIT_PROFILES_PATH/$GIT_PROFILE_NAME/$GIT_PROFILE_CONFIG_FILE"
+    echo "New profile created as $GIT_PROFILES_PATH/$GIT_PROFILE_NAME"
+  fi
+  return 0
+}
+
+git-profile-use() {
+  GIT_PROFILE_NAME="$1"
+
+  # Make sure it exists and is ready for use
+  if [ ! -d "$GIT_PROFILES_PATH/$GIT_PROFILE_NAME" ]; then
+    echo "Warning: The profile named $GIT_PROFILE_NAME does not exist."
+    return 1
+  elif [ ! -f "$GIT_PROFILES_PATH/$GIT_PROFILE_NAME/$GIT_PROFILE_CONFIG_FILE" ]; then
+    echo "Warning: The profile named $GIT_PROFILE_NAME does not contain a file named $GIT_PROFILE_CONFIG_FILE."
+    return 1
+  fi
+
+  ln -sf "$GIT_PROFILES_PATH/$GIT_PROFILE_NAME/$GIT_PROFILE_CONFIG_FILE" "$GIT_CONFIG_FILE"
+  echo "The $GIT_PROFILE_NAME profile is now in use"
+  return 0
+}
+
+git-profile-help() {
+  echo "Git Profile Help"
+  echo "  git profile current                Shows the current profile"
+  echo "  git profile create profilename     Create a new profile"
+  echo "  git profile use profilename        Use the specified profile"
+  return 0
+}
+
+# Create the Git profiles path if necessary
+if [ ! -d "$GIT_PROFILES_PATH" ]; then
+  mkdir -p -m 0770 "$GIT_PROFILES_PATH"
+fi
