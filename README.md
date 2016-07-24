@@ -8,6 +8,8 @@ git profile use home
 
 Execute `git profile help` for some help. You can see that the `bash_git_profile` script wraps the main Git command. Anything unrelated to Git Profile is just passed through (after reminding you of your current profile).
 
+There's a how-to video available, if you want to see git-profile in action: [Using the git-profile project](https://vimeo.com/175977332)
+
 ## Installation
 
 Clone the project repo. Perhaps, `cd ~/Projects; git clone git@github.com:jlamoree/git-profile.git`.
@@ -20,7 +22,7 @@ Check out the configuration options in the top of the Bash script.
 
 ### Profiles Path
 
-The `GIT_PROFILES_PATH` variable points to your profiles, as you might guess. This could be something like `$HOME/.gitprofiles` or `$HOME/Dropbox/Gitprofiles` if you want to sync your profiles.
+The `GIT_PROFILES_PATH` variable points to your profiles, as you might guess. This could be something like `$HOME/.gitprofiles` or `$HOME/Dropbox/GitProfiles` if you want to sync your profiles.
 
 ### Profile Reminder
 
