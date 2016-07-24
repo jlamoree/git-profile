@@ -25,7 +25,6 @@ The `GIT_PROFILES_PATH` variable points to your profiles, as you might guess. Th
 ### Profile Reminder
 
 The `GIT_PROFILE_REMINDER` variable controls whether you want to be reminded of your current profile when running any Git commands. The default is "yes".
-```
 
 ## Bugs/Enhancements
 
